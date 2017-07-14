@@ -1,0 +1,19 @@
+
+# Created by https://www.gitignore.io/api/vagrant
+
+### Vagrant ###
+.vagrant/
+
+# End of https://www.gitignore.io/api/vagrant
+
+# Created by https://www.gitignore.io/api/synology
+
+### Synology ###
+# Thumbnails
+@eaDir
+# Recycle bin
+\#recycle
+
+# End of https://www.gitignore.io/api/synology
+
+*.log
