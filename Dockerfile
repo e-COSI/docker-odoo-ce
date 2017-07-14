@@ -42,20 +42,28 @@ RUN set -x; \
             python-gevent \
             python-pip \
             python-setuptools \
+            python-wheel \
             python-renderpm \
-            python-watchdog
+            python-watchdog \
+            # Adding distro package to speedup container building preventing package building 
+            # throw python requirements and lib-dev downloading
+           # python-lxml \
+            python-ldap \
+            python-psycogreen \
+            python-psycopg2 \
+            python-gevent \
+            python-psutil
 
  
 RUN set -x; \
         curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/${WKHTMLTOPDF_DEB} \
         && echo "${WKHTMLTOPDF_SHA} wkhtmltox.deb" | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
+        && rm wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends
 
 RUN set -x; \
-        apt-get install -y --force-yes postgresql-${POSTGRES_VERSION} \
-        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
-        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb \
+        apt-get install -y --force-yes postgresql-client-${POSTGRES_VERSION} \
         && pip install psycogreen==1.0
 
 RUN apt-get update && apt-get -y install git
@@ -66,15 +74,14 @@ RUN apt-get update && apt-get -y install git
 #--------------------------------------------------
 
 # Create Odoo system user
-RUN adduser --system --home /odoo --quiet --group odoo
-
+RUN set -x; \
+        adduser --system --home /odoo --quiet --group odoo \
 # Log
-RUN mkdir -p /var/log/odoo \
+        && mkdir -p /var/log/odoo \
 	&& chown odoo:odoo /var/log/odoo \
-	&& chmod 0750 /var/log/odoo
-
+	&& chmod 0750 /var/log/odoo \
 # Data dir
-RUN mkdir -p /var/lib/odoo \
+        && mkdir -p /var/lib/odoo \
 	&& chown odoo:odoo /var/lib/odoo \
 	&& chmod 0750 /var/lib/odoo
 
@@ -83,12 +90,35 @@ RUN mkdir -p /var/lib/odoo \
 #--------------------------------------------------
 
 # Clone git repo
-
 RUN set -x; \
     git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://www.github.com/odoo/odoo /odoo/odoo-server \
     && cd /odoo/odoo-server \
     && git reset --hard ${ODOO_COMMIT_HASH} \
     && rm -rf /odoo/odoo-server/.git
+
+# Installing community edition requirements
+RUN set -x; apt-get update && apt-get install -y \
+            libldap2-dev \
+      	    libsasl2-dev \
+      	    libxml2-dev \
+      	    zlib1g-dev \
+      	    libxslt1-dev \
+            libjpeg-dev \
+            libpython2.7-dev \
+            libffi-dev \
+            libssl-dev \
+            gcc
+
+RUN set -x; \
+        pip install -r /odoo/odoo-server/requirements.txt \ 
+        # needed by auto-backup module
+        && pip install pysftp
+
+#RUN set -x; \
+#        apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
+#        && rm -rf /var/lib/apt/lists/*
+
+#RUN apt-get -y purge lib*-dev && apt-get autoremove
 
 # Writing metainfo file
 RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
@@ -96,28 +126,6 @@ RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
     && echo "Commit : ${ODOO_COMMIT_HASH}\n" > /odoo/version.txt \
     && echo "Built on :" > /odoo/version.txt \
     && date +"%Y-%m-%d" > /odoo/version.txt && echo "\n"
-
-
-# Installing community edition requirements
-RUN set -x; apt-get update && apt-get install -y \
-            cython \
-            python-wheel \
-            libldap2-dev \
-      	    libsasl2-dev \
-      	    libxml2-dev \
-      	    zlib1g-dev \
-      	    libxslt1-dev \
-            libjpeg-dev
-
-RUN pip install -r /odoo/odoo-server/requirements.txt 
-
-#RUN set -x; \
-  #&& apt-get update \
-  #&& apt-get install -y gcc \
-  # needed by auto-backup module
-  #&& /usr/local/bin/pip install pysftp
-
-#RUN apt-get -y purge lib*-dev && apt-get autoremove
 
 #echo -e "\n---- Setting permissions on home folder ----"
 RUN chown -R odoo:odoo /odoo/*

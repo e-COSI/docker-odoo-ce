@@ -1,0 +1,44 @@
+version: '2'
+services:
+  odoo:
+    build: 
+      context: "."
+      args:
+        ODOO_COMMIT_HASH: e6e17cc5d6483afbdd898248858933b85ac422d4
+        VERSION_DATE: "2017-07-11"
+        ODOO_VERSION: "10.0"
+    image: odoo:test1
+    restart: always
+    container_name: odoo_test
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    volumes:
+      - "/var/local/odoo/data:/var/lib/odoo"
+      - "/var/local/odoo/addons:/mnt/extra-addons"
+      - "/var/local/odoo/log:/var/log/odoo"
+    environment:
+      - PGHOST=db
+      - PGUSER=odoo
+      - PGPASSWORD=odoo
+    links:
+      - database:db
+  pgweb:
+    image: donnex/pgweb
+    restart: always
+    container_name: pgweb
+    ports:
+      - "8082:8080"
+    links:
+      - database:db
+  database:
+    image: postgres:9.6
+    restart: always
+    container_name: pg_96
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    ports:
+      - '5432:5432'
+    volumes:
+      - "/var/local/odoo/postgresql/9.6/data:/var/lib/postgresql/data"
