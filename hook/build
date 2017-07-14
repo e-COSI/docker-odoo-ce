@@ -1,0 +1,10 @@
+#!/bin/bash
+source build_args
+docker build --build-arg ODOO_DB_FILTER=$ODOO_DB_FILTER \
+		--build-arg ODOO_VERSION=$ODOO_VERSION \
+		--build-arg ODOO_COMMIT_HASH=$ODOO_COMMIT_HASH \
+		--build-arg VERSION_DATE=$VERSION_DATE \
+		--build-arg WKHTMLTOPDF_VERSION=$WKHTMLTOPDF_VERSION \
+		--build-arg WKHTMLTOPDF_SHA=$WKHTMLTOPDF_SHA
+		--build-arg POSTGRES_VERSION=$POSTGRES_VERSION
+		-t $IMAGE_NAME
