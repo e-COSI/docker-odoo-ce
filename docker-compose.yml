@@ -1,15 +1,9 @@
 version: '2'
 services:
   odoo:
-    build: 
-      context: "."
-      args:
-        ODOO_COMMIT_HASH: e6e17cc5d6483afbdd898248858933b85ac422d4
-        VERSION_DATE: "2017-07-11"
-        ODOO_VERSION: "10.0"
-    image: odoo:test1
+    image: ecosi/odoo-ce
     restart: always
-    container_name: odoo_test
+    container_name: odoo_app
     ports:
       - "8069:8069"
       - "8072:8072"
@@ -34,7 +28,7 @@ services:
   database:
     image: postgres:9.6
     restart: always
-    container_name: pg_96
+    container_name: odoo_db
     environment:
       - POSTGRES_USER=odoo
       - POSTGRES_PASSWORD=odoo

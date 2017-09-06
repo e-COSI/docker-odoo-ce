@@ -1,0 +1,6 @@
+.vagrant.d/
+*.log
+Vagrantfile
+docker-compose.yml
+hook/
+.git/
