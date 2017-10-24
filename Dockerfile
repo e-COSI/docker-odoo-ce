@@ -13,7 +13,7 @@ ARG ODOO_COMMIT_HASH
 ARG VERSION_DATE
 # Odoo need specific extra version for wkhtmltopdf provided by Odoo from nightly builds server
 ARG WKHTMLTOPDF_SRC=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-ARG WKHTMLTOPDF_SHA=40e8b906de658a2221b15e4e8cd82565a47d7ee8
+ARG WKHTMLTOPDF_SHA=3f923f425d345940089e44c1466f6408b9619562
 # PostgreSQL Version used for bakcup/restore operations
 ARG POSTGRES_VERSION=9.6
 # Choosing default conf file, eg. to create dev container
