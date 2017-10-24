@@ -44,6 +44,7 @@ RUN set -x; apt-get update \
         git \
         vim \
 	gcc \
+        xz-utils \
         # Python 3 env
         python3 \
         python3-pip \
