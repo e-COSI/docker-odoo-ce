@@ -12,7 +12,7 @@ ARG ODOO_COMMIT_HASH
 #  VERSION_DATE must be equal to commit selected date
 ARG VERSION_DATE
 # Odoo need specific extra version for wkhtmltopdf provided by Odoo from nightly builds server
-ARG WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.1/wkhtmltox-0.12.1_linux-trusty-amd64.deb
+ARG WKHTMLTOPDF_SRC=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
 ARG WKHTMLTOPDF_SHA=40e8b906de658a2221b15e4e8cd82565a47d7ee8
 # PostgreSQL Version used for bakcup/restore operations
 ARG POSTGRES_VERSION=9.6
@@ -57,7 +57,7 @@ RUN set -x; apt-get update \
         libxslt-dev \
         libsasl2-dev \
         libldap2-dev \
-        libssl-dev \
+        libssl1.0-dev \
         # PostgreSQL client (for DB backup/restore)
         postgresql-client-${POSTGRES_VERSION} \
         # Requierd from Odoo Deb package
@@ -87,6 +87,7 @@ RUN set -x; apt-get update \
         python3-pypdf2 \
         python3-reportlab \
         python3-requests \
+        python3-renderpm \
         python3-suds \
         python3-tz \
         python3-vatnumber \
@@ -98,12 +99,13 @@ RUN set -x; apt-get update \
         && pip3 install --upgrade pip
 
 RUN set -x; \
-        curl -o wkhtmltox.deb -SL ${WKHTMLTOPDF_DEB} \
-        #&& echo "${WKHTMLTOPDF_SHA} wkhtmltox.deb" | sha1sum -c - \
-        && dpkg --force-depends -i wkhtmltox.deb \
-        && apt-get -y install -f --no-install-recommends \
-        && rm wkhtmltox.deb
-
+	curl -o wkhtmltox.tar.xz -SL ${WKHTMLTOPDF_SRC} \
+        && echo "${WKHTMLTOPDF_SHA} wkhtmltox.tar.xz" | sha1sum -c - \
+        && tar xvf wkhtmltox.tar.xz \
+        && cp wkhtmltox/lib/* /usr/local/lib/ \
+        && cp wkhtmltox/bin/* /usr/local/bin/ \
+        && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/ \
+	&& rm -rf wkhtmltox
 
 #--------------------------------------------------
 # Prepare Env
@@ -176,7 +178,7 @@ RUN set -x; \
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons", "/var/log/odoo", "/etc/odoo"]
 
 # Expose Odoo services
-EXPOSE 8069 8072
+EXPOSE 8069 8071
 
 # Set default user when running the container
 USER odoo
