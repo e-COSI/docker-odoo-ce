@@ -2,9 +2,9 @@
 # Subdomain db filtering
 $ODOO_DB_FILTER=^%d_*
 
-$ODOO_VERSION=10.0
-$ODOO_COMMIT_HASH=3550a68d968aeacf1b6efd1c96f5c57e5de60bbe
-$VERSION_DATE=2017-09-24
+$ODOO_VERSION=11.0
+$ODOO_COMMIT_HASH=797f0c1b6e6d7f137b15182b6011a77b8122a469
+$VERSION_DATE=2017-11-16
 
 # Using default Dockerfile values for wkhtmltopdf
 $WKHTMLTOPDF_DEB=""
