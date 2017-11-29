@@ -135,7 +135,8 @@ RUN set -x; \
           else git clone --depth 1 --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
         fi; \
         cd /odoo/odoo-server \
-        if [ ${ODOO_COMMIT_HASH} ]; then git reset --hard ${ODOO_COMMIT_HASH}; fi
+        if [ ${ODOO_COMMIT_HASH} ]; then git reset --hard ${ODOO_COMMIT_HASH}; fi \
+        rm -rf /odoo/odoo-server/.git
 
 RUN pip3 install -r /odoo/odoo-server/requirements.txt
 
