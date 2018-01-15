@@ -140,6 +140,9 @@ RUN set -x; \
 
 RUN pip3 install -r /odoo/odoo-server/requirements.txt
 
+# Install DEV stuff
+RUN pip3 install wdb pudb watchdog
+
 # Cleaning image
 RUN set -x; \
         apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
