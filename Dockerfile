@@ -140,8 +140,8 @@ RUN set -x; \
 
 RUN pip3 install -r /odoo/odoo-server/requirements.txt
 
-# Install DEV stuff
-RUN pip3 install wdb pudb watchdog
+# Install extra stuff
+RUN pip3 install wdb pudb watchdog newrelic
 
 # Cleaning image
 RUN set -x; \
