@@ -47,7 +47,7 @@ RUN set -x; \
 
 # Clone git repo, using commit hash if given
 RUN set -x; \
-        apt-get update && apt-get install -y git \
+        apt-get update && apt-get install -y git; \
         if [ ${ODOO_COMMIT_HASH} ]; \
         then git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
         else git clone --depth 1 --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
