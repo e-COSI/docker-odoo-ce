@@ -47,7 +47,7 @@ RUN set -x; \
 
 # Clone git repo, using commit hash if given
 RUN set -x; \
-        apt-get update && apt-get install -y git; \
+        apt-get update && apt-get install -y git apt-utils; \
         if [ ${ODOO_COMMIT_HASH} ]; \
         then git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
         else git clone --depth 1 --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
@@ -65,7 +65,7 @@ RUN set -x; \
 # Install some deps, lessc and less-plugin-clean-css, wkhtmltopdf
 #  and pgclient
 RUN set -x; \
-        apt-get update && apt-get install -y wget apt-utils gnupg \
+        apt-get update && apt-get install -y wget gnupg \
         && echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
         && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
         && apt-get update \
