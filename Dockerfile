@@ -24,6 +24,39 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 
+
+#--------------------------------------------------
+# Prepare Env
+#--------------------------------------------------
+
+# Create Odoo system user
+RUN set -x; \
+        adduser --system --home /odoo --quiet --group odoo \
+        # Log
+        && mkdir -p /var/log/odoo \
+        && chown odoo:odoo /var/log/odoo \
+        && chmod 0750 /var/log/odoo \
+        # Data dir
+        && mkdir -p /var/lib/odoo \
+        && chown odoo:odoo /var/lib/odoo \
+        && chmod 0750 /var/lib/odoo
+
+#--------------------------------------------------
+# Install ODOO
+#--------------------------------------------------
+
+# Clone git repo, using commit hash if given
+RUN set -x; \
+        if [ ${ODOO_COMMIT_HASH} ]; \
+        then git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
+        else git clone --depth 1 --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
+        fi; \
+        cd /odoo/odoo-server \
+        if [ ${ODOO_COMMIT_HASH} ]; then git reset --hard ${ODOO_COMMIT_HASH}; fi \
+        rm -rf /odoo/odoo-server/.git \
+        # Setting permissions on home folder
+        chown -R odoo:odoo /odoo/*
+
 #--------------------------------------------------
 # Install Dependencies
 #--------------------------------------------------
@@ -31,19 +64,18 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install some deps, lessc and less-plugin-clean-css, wkhtmltopdf
 #  and pgclient
 RUN set -x; \
-        apt-get update \
-        && apt-get install -y apt-utils wget gnupg \
-        #&& echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
         && echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
-        && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-
-RUN set -x; apt-get update \
+        && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+        && apt-get update \
         && apt-get install -y --no-install-recommends --allow-unauthenticated \
         # Utils
+        apt-utils \
+        wget \
+        gnupg \
         curl \
         git \
         vim \
-	gcc \
+        gcc \
         xz-utils \
         # Python 3 env
         python3 \
@@ -97,74 +129,38 @@ RUN set -x; apt-get update \
         python3-yaml \
         # Recommanded from Odoo Deb Package
         python-gevent \
-        && pip3 install --upgrade pip
-
-RUN set -x; \
-	curl -o wkhtmltox.tar.xz -SL ${WKHTMLTOPDF_SRC} \
+        # Upgrade PIP
+        && pip3 install --upgrade pip \
+        # WKMHTLTOPDF
+        && curl -o wkhtmltox.tar.xz -SL ${WKHTMLTOPDF_SRC} \
         && echo "${WKHTMLTOPDF_SHA} wkhtmltox.tar.xz" | sha1sum -c - \
         && tar xvf wkhtmltox.tar.xz \
         && cp wkhtmltox/lib/* /usr/local/lib/ \
         && cp wkhtmltox/bin/* /usr/local/bin/ \
         && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/ \
-	&& rm -rf wkhtmltox
-
-#--------------------------------------------------
-# Prepare Env
-#--------------------------------------------------
-
-# Create Odoo system user
-RUN set -x; \
-        adduser --system --home /odoo --quiet --group odoo \
-# Log
-        && mkdir -p /var/log/odoo \
-	&& chown odoo:odoo /var/log/odoo \
-	&& chmod 0750 /var/log/odoo \
-# Data dir
-        && mkdir -p /var/lib/odoo \
-	&& chown odoo:odoo /var/lib/odoo \
-	&& chmod 0750 /var/lib/odoo
-
-#--------------------------------------------------
-# Install ODOO
-#--------------------------------------------------
-
-# Clone git repo, using commit hash if given
-RUN set -x; \
-        if [ ${ODOO_COMMIT_HASH} ]; \
-          then git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
-          else git clone --depth 1 --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
-        fi; \
-        cd /odoo/odoo-server \
-        if [ ${ODOO_COMMIT_HASH} ]; then git reset --hard ${ODOO_COMMIT_HASH}; fi \
-        rm -rf /odoo/odoo-server/.git
-
-RUN pip3 install -r /odoo/odoo-server/requirements.txt
-
-# Install extra stuff
-RUN pip3 install wdb pudb watchdog newrelic
-
-# Cleaning image
-RUN set -x; \
-        apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
+        && rm -rf wkhtmltox \
+        # Python requirements
+        && pip3 install -r /odoo/odoo-server/requirements.txt \
+        # Install extra stuff
+        && pip3 install wdb pudb watchdog newrelic \
+        # Cleaning layer
+        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/*
 
-# Writing metainfo file
+# Writing meta infos file
 RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
-    && echo "Date from : ${VERSION_DATE}\n" >> /odoo/version.txt \
-    && echo "Commit : ${ODOO_COMMIT_HASH}\n" >> /odoo/version.txt \
-    && echo "Built on :" >> /odoo/version.txt \
-    && date +"%Y-%m-%d" >> /odoo/version.txt && echo "\n"
+        && echo "Date from : ${VERSION_DATE}\n" >> /odoo/version.txt \
+        && echo "Commit : ${ODOO_COMMIT_HASH}\n" >> /odoo/version.txt \
+        && echo "Built on :" >> /odoo/version.txt \
+        && date +"%Y-%m-%d" >> /odoo/version.txt && echo "\n"
 
-#echo -e "\n---- Setting permissions on home folder ----"
-RUN chown -R odoo:odoo /odoo/* \
-    # Odoo configuration file
-    && mkdir -p /etc/odoo
+RUN mkdir -p /etc/odoo
 
 COPY ./${DEFAULT_CONF_FILE} /etc/odoo/odoo.conf
 
 RUN chown odoo /etc/odoo/odoo.conf \
-    && chmod 0640 /etc/odoo/odoo.conf \
-    && echo "dbfilter=${DB_FILTER}" >> /etc/odoo/odoo.conf
+        && chmod 0640 /etc/odoo/odoo.conf \
+        && echo "dbfilter=${DB_FILTER}" >> /etc/odoo/odoo.conf
 
 # Copy entrypoint script
 COPY ./entrypoint.sh /odoo/
