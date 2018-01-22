@@ -65,14 +65,12 @@ RUN set -x; \
 # Install some deps, lessc and less-plugin-clean-css, wkhtmltopdf
 #  and pgclient
 RUN set -x; \
-        apt-get update && apt-get install -y wget \
+        apt-get update && apt-get install -y wget apt-utils gnupg \
         && echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
         && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
         && apt-get update \
         && apt-get install -y --no-install-recommends --allow-unauthenticated \
         # Utils
-        apt-utils \
-        gnupg \
         curl \
         vim \
         gcc \
