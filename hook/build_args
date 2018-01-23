@@ -6,7 +6,6 @@ $ODOO_VERSION=11.0
 $ODOO_COMMIT_HASH=950d9b2369046f2e3199d144df8edbd0e63f8a2f
 $VERSION_DATE=2018-01-22
 
-
 # Using default Dockerfile values for wkhtmltopdf
 $WKHTMLTOPDF_SRC=""
 $WKHTMLTOPDF_SHA=""
