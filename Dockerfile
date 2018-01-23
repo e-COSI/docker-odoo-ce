@@ -2,20 +2,20 @@ FROM debian:stretch
 LABEL maintainer="e-COSI <odoo@e-cosi.com>"
 
 # db_filter is added to odoo.conf
-ARG ODOO_DB_FILTER=^%d_*
+ARG ODOO_DB_FILTER
 # Image is built from Odoo branch given by VERSION AND WITH EXACT COMMIT HASH
 # IMPORTANT! This script contains extra libraries that are specifically needed for Odoo 10.0
-ARG ODOO_VERSION=11.0
+ARG ODOO_VERSION
 ARG ODOO_COMMIT_HASH
 # VERSION_DATE is used as meta info in version.txt file generated at /odoo
 #  and to limit cloning depth via shallow-since
 #  VERSION_DATE must be equal to commit selected date
 ARG VERSION_DATE
 # Odoo need specific extra version for wkhtmltopdf provided by Odoo from nightly builds server
-ARG WKHTMLTOPDF_SRC=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-ARG WKHTMLTOPDF_SHA=3f923f425d345940089e44c1466f6408b9619562
+ARG WKHTMLTOPDF_SRC
+ARG WKHTMLTOPDF_SHA
 # PostgreSQL Version used for bakcup/restore operations
-ARG POSTGRES_VERSION=9.6
+ARG POSTGRES_VERSION
 # Choosing default conf file, eg. to create dev container
 ARG DEFAULT_CONF_FILE=odoo_default.conf
 
@@ -54,7 +54,7 @@ RUN set -x; \
         fi; \
         cd /odoo/odoo-server \
         if [ ${ODOO_COMMIT_HASH} ]; then git reset --hard ${ODOO_COMMIT_HASH}; fi \
-        rm -rf /odoo/odoo-server/.git \
+        rm -rf /odoo/odoo-server/.git; \
         # Setting permissions on home folder
         chown -R odoo:odoo /odoo/*
 
@@ -125,10 +125,16 @@ RUN set -x; \
         python3-werkzeug \
         python3-xlsxwriter \
         python3-yaml \
-        # Recommanded from Odoo Deb Package
+        # Recommended from Odoo Deb Package
         python-gevent \
-        # Upgrade PIP
         && pip3 install --upgrade pip \
+        # Python requirements
+        && pip3 install -r /odoo/odoo-server/requirements.txt \
+        # Install extra stuff
+        && pip3 install wdb pudb watchdog newrelic \
+        # Cleaning layer
+        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
+        && rm -rf /var/lib/apt/lists/* \
         # WKMHTLTOPDF
         && curl -o wkhtmltox.tar.xz -SL ${WKHTMLTOPDF_SRC} \
         && echo "${WKHTMLTOPDF_SHA} wkhtmltox.tar.xz" | sha1sum -c - \
@@ -136,14 +142,7 @@ RUN set -x; \
         && cp wkhtmltox/lib/* /usr/local/lib/ \
         && cp wkhtmltox/bin/* /usr/local/bin/ \
         && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/ \
-        && rm -rf wkhtmltox \
-        # Python requirements
-        && pip3 install -r /odoo/odoo-server/requirements.txt \
-        # Install extra stuff
-        && pip3 install wdb pudb watchdog newrelic \
-        # Cleaning layer
-        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
-        && rm -rf /var/lib/apt/lists/*
+        && rm -rf wkhtmltox
 
 # Writing meta infos file
 RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
@@ -177,7 +176,7 @@ RUN set -x; \
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons", "/var/log/odoo", "/etc/odoo"]
 
 # Expose Odoo services
-EXPOSE 8069 8071
+EXPOSE 8069 8072
 
 # Set the default config file
 ENV ODOO_RC /etc/odoo/odoo.conf
