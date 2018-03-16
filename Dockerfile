@@ -152,11 +152,10 @@ RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
         && date +"%Y-%m-%d" >> /odoo/version.txt && echo "\n"
 
 COPY ./files/release.diff /tmp
-RUN sed -i 's/%%CONTAINER_DATE%%/${VERSION_DATE//-}/g' /tmp/release.diff \
-        && sed -i 's/%%COMMIT_HASH%%/${ODOO_COMMIT_HASH}/g' /tmp/release.diff \
-        && cp /odoo/odoo-server/odoo/release.py /odoo/odoo-server/odoo/release_py.backup \
-        && patch -i /tmp/release.diff /odoo/odoo-server/odoo/release.py \
-        && /tmp/release.diff
+COPY ./files/patch_release.sh /tmp
+RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} \
+        && rm /tmp/release.diff \
+        && rm /tmp/patch_release.sh
 
 RUN mkdir -p /etc/odoo
 
