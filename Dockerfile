@@ -75,6 +75,7 @@ RUN set -x; \
         vim \
         gcc \
         xz-utils \
+        patch \
         # Python 3 env
         python3 \
         python3-pip \
