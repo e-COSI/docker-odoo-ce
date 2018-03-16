@@ -151,16 +151,23 @@ RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
         && echo "Built on :" >> /odoo/version.txt \
         && date +"%Y-%m-%d" >> /odoo/version.txt && echo "\n"
 
+COPY ./files/release.diff /tmp
+RUN sed -i 's/%%CONTAINER_DATE%%/${VERSION_DATE//-}/g' /tmp/release.diff \
+        && sed -i 's/%%COMMIT_HASH%%/${ODOO_COMMIT_HASH}/g' /tmp/release.diff \
+        && cp /odoo/odoo-server/odoo/release.py /odoo/odoo-server/odoo/release_py.backup \
+        && patch -i /tmp/release.diff /odoo/odoo-server/odoo/release.py \
+        && /tmp/release.diff
+
 RUN mkdir -p /etc/odoo
 
-COPY ./${DEFAULT_CONF_FILE} /etc/odoo/odoo.conf
+COPY ./files/${DEFAULT_CONF_FILE} /etc/odoo/odoo.conf
 
 RUN chown odoo /etc/odoo/odoo.conf \
         && chmod 0640 /etc/odoo/odoo.conf \
         && echo "dbfilter=${DB_FILTER}" >> /etc/odoo/odoo.conf
 
 # Copy entrypoint script
-COPY ./entrypoint.sh /odoo/
+COPY ./files/entrypoint.sh /odoo/
 RUN chmod +x /odoo/entrypoint.sh
 
 # Mount /var/lib/odoo to allow restoring filestore
