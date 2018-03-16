@@ -75,6 +75,7 @@ RUN set -x; \
         vim \
         gcc \
         xz-utils \
+        patch \
         # Python 3 env
         python3 \
         python3-pip \
@@ -151,16 +152,23 @@ RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
         && echo "Built on :" >> /odoo/version.txt \
         && date +"%Y-%m-%d" >> /odoo/version.txt && echo "\n"
 
+COPY ./files/release.diff /tmp
+COPY ./files/patch_release.sh /tmp
+RUN chmod +x /tmp/patch_release.sh
+RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} \
+        && rm /tmp/release.diff \
+        && rm /tmp/patch_release.sh
+
 RUN mkdir -p /etc/odoo
 
-COPY ./${DEFAULT_CONF_FILE} /etc/odoo/odoo.conf
+COPY ./files/${DEFAULT_CONF_FILE} /etc/odoo/odoo.conf
 
 RUN chown odoo /etc/odoo/odoo.conf \
         && chmod 0640 /etc/odoo/odoo.conf \
         && echo "dbfilter=${DB_FILTER}" >> /etc/odoo/odoo.conf
 
 # Copy entrypoint script
-COPY ./entrypoint.sh /odoo/
+COPY ./files/entrypoint.sh /odoo/
 RUN chmod +x /odoo/entrypoint.sh
 
 # Mount /var/lib/odoo to allow restoring filestore
