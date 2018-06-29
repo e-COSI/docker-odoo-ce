@@ -11,9 +11,6 @@ ARG ODOO_COMMIT_HASH
 #  and to limit cloning depth via shallow-since
 #  VERSION_DATE must be equal to commit selected date
 ARG VERSION_DATE
-# Odoo need specific extra version for wkhtmltopdf provided by Odoo from nightly builds server
-ARG WKHTMLTOPDF_SRC
-ARG WKHTMLTOPDF_SHA
 # PostgreSQL Version used for bakcup/restore operations
 ARG POSTGRES_VERSION
 # Choosing default conf file, eg. to create dev container
@@ -74,14 +71,14 @@ RUN set -x; \
         curl \
         vim \
         gcc \
-        xz-utils \
         patch \
+        ca-certificates \
         # Python 3 env
-        python3 \
-        python3-pip \
-        python3-setuptools \
-        python3-wheel \
-        python3-dev \
+        python \
+        python-pip \
+        python-setuptools \
+        python-wheel \
+        python-dev \
         # Dev stuff for building python requirements
         cython \
         zlib1g-dev \
@@ -99,51 +96,54 @@ RUN set -x; \
         node-less \
         postgresql-client \
         python-vobject \
-        python3-babel \
-        python3-dateutil \
-        python3-decorator \
-        python3-docutils \
-        python3-feedparser \
-        python3-html2text \
-        python3-pil \
-        python3-jinja2 \
-        python3-lxml \
-        python3-mako \
-        python3-mock \
-        python3-openid \
-        python3-passlib \
-        python3-psutil \
-        python3-psycopg2 \
-        python3-pydot \
-        python3-pyparsing \
-        python3-pypdf2 \
-        python3-reportlab \
-        python3-requests \
-        python3-renderpm \
-        python3-suds \
-        python3-tz \
-        python3-vatnumber \
-        python3-werkzeug \
-        python3-xlsxwriter \
-        python3-yaml \
+        python-babel \
+        python-dateutil \
+        python-decorator \
+        python-docutils \
+        python-feedparser \
+        python-html2text \
+        python-pil \
+        python-jinja2 \
+        python-lxml \
+        python-mako \
+        python-mock \
+        python-openid \
+        python-passlib \
+        python-psutil \
+        python-psycopg2 \
+        python-pydot \
+        python-pyparsing \
+        python-pypdf2 \
+        python-reportlab \
+        python-requests \
+        python-renderpm \
+        python-suds \
+        python-tz \
+        python-vatnumber \
+        python-werkzeug \
+        python-xlsxwriter \
+        python-yaml \
         # Recommended from Odoo Deb Package
         python-gevent \
-        && pip3 install --upgrade pip \
+        python-renderpm \
+        python-support \
+        python-watchdog \
+        && pip install --upgrade pip \
         # Python requirements
-        && pip3 install -r /odoo/odoo-server/requirements.txt \
+        && pip install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
-        && pip3 install wdb pudb watchdog newrelic \
+        && pip install wdb pudb newrelic psycogreen==1.0 \
         # Cleaning layer
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/* \
         # WKMHTLTOPDF
-        && curl -o wkhtmltox.tar.xz -SL ${WKHTMLTOPDF_SRC} \
-        && echo "${WKHTMLTOPDF_SHA} wkhtmltox.tar.xz" | sha1sum -c - \
-        && tar xvf wkhtmltox.tar.xz \
-        && cp wkhtmltox/lib/* /usr/local/lib/ \
-        && cp wkhtmltox/bin/* /usr/local/bin/ \
-        && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/ \
-        && rm -rf wkhtmltox
+        && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
+        && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
+        && dpkg --force-depends -i wkhtmltox.deb \
+        && apt-get -y install -f --no-install-recommends \
+        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
+        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
+
 
 # Writing meta infos file
 RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
