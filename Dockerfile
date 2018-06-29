@@ -128,7 +128,7 @@ RUN set -x; \
         python3-yaml \
         # Recommended from Odoo Deb Package
         python-gevent \
-        && pip3 install --upgrade pip \
+        #&& pip3 install --upgrade pip \
         # Python requirements
         && pip3 install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
