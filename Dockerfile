@@ -126,9 +126,7 @@ RUN set -x; \
         # Recommended from Odoo Deb Package
         python-gevent \
         python-renderpm \
-        python-support \
         python-watchdog \
-        && pip install --upgrade pip \
         # Python requirements
         && pip install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
@@ -141,7 +139,7 @@ RUN set -x; \
         && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
-        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
+        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
 
@@ -152,12 +150,12 @@ RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
         && echo "Built on :" >> /odoo/version.txt \
         && date +"%Y-%m-%d" >> /odoo/version.txt && echo "\n"
 
-COPY ./files/release.diff /tmp
-COPY ./files/patch_release.sh /tmp
-RUN chmod +x /tmp/patch_release.sh
-RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} \
-        && rm /tmp/release.diff \
-        && rm /tmp/patch_release.sh
+#COPY ./files/release.diff /tmp
+#COPY ./files/patch_release.sh /tmp
+#RUN chmod +x /tmp/patch_release.sh
+#RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} \
+#        && rm /tmp/release.diff \
+#        && rm /tmp/patch_release.sh
 
 RUN mkdir -p /etc/odoo
 
