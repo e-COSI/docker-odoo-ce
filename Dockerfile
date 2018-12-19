@@ -12,7 +12,7 @@ ARG ODOO_COMMIT_HASH
 #  VERSION_DATE must be equal to commit selected date
 ARG VERSION_DATE
 # Odoo need specific extra version for wkhtmltopdf provided by Odoo from nightly builds server
-ARG WKHTMLTOPDF_SRC
+ARG WKHTMLTOPDF_DEB
 ARG WKHTMLTOPDF_SHA
 # PostgreSQL Version used for bakcup/restore operations
 ARG POSTGRES_VERSION
@@ -69,9 +69,9 @@ RUN set -x; \
         && echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
         && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
         && apt-get update \
-        && apt-get install -y --no-install-recommends --allow-unauthenticated \
-        # Utils
+	&& apt-get install -y \
         curl \
+	ca-certificates \
         vim \
         gcc \
         xz-utils \
@@ -98,8 +98,9 @@ RUN set -x; \
         lsb-base \
         node-less \
         postgresql-client \
-        python-vobject \
+        python3-vobject \
         python3-babel \
+	python3-chardet \
         python3-dateutil \
         python3-decorator \
         python3-docutils \
@@ -108,6 +109,7 @@ RUN set -x; \
         python3-pil \
         python3-jinja2 \
         python3-lxml \
+	python3-pyldap \
         python3-mako \
         python3-mock \
         python3-openid \
@@ -117,6 +119,7 @@ RUN set -x; \
         python3-pydot \
         python3-pyparsing \
         python3-pypdf2 \
+	python3-qrcode \
         python3-reportlab \
         python3-requests \
         python3-renderpm \
@@ -124,26 +127,24 @@ RUN set -x; \
         python3-tz \
         python3-vatnumber \
         python3-werkzeug \
+	python3-watchdog \
         python3-xlsxwriter \
-        python3-yaml \
         # Recommended from Odoo Deb Package
         python-gevent \
         #&& pip3 install --upgrade pip \
         # Python requirements
         && pip3 install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
-        && pip3 install wdb pudb watchdog newrelic \
+        && pip3 install wdb pudb newrelic num2words xlwt \
         # Cleaning layer
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/* \
         # WKMHTLTOPDF
-        && curl -o wkhtmltox.tar.xz -SL ${WKHTMLTOPDF_SRC} \
-        && echo "${WKHTMLTOPDF_SHA} wkhtmltox.tar.xz" | sha1sum -c - \
-        && tar xvf wkhtmltox.tar.xz \
-        && cp wkhtmltox/lib/* /usr/local/lib/ \
-        && cp wkhtmltox/bin/* /usr/local/bin/ \
-        && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/ \
-        && rm -rf wkhtmltox
+        && curl -o wkhtmltox.deb -SL ${WKHTMLTOPDF_DEB} \
+        && echo "${WKHTMLTOPDF_SHA} wkhtmltox.deb" | sha1sum -c - \
+        && dpkg --force-depends -i wkhtmltox.deb \
+        && apt-get -y install -f --no-install-recommends \
+        && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
 # Writing meta infos file
 RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \

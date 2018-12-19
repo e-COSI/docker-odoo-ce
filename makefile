@@ -39,7 +39,7 @@ build: ## Build the container
 		--build-arg ODOO_VERSION=$(ODOO_VERSION) \
 		--build-arg ODOO_COMMIT_HASH=$(ODOO_COMMIT_HASH) \
 		--build-arg VERSION_DATE=$(VERSION_DATE) \
-		--build-arg WKHTMLTOPDF_SRC=$(WKHTMLTOPDF_SRC) \
+		--build-arg WKHTMLTOPDF_DEB=$(WKHTMLTOPDF_DEB) \
 		--build-arg WKHTMLTOPDF_SHA=$(WKHTMLTOPDF_SHA) \
 		--build-arg POSTGRES_VERSION=$(POSTGRES_VERSION) \
 		--rm -t $(APP_NAME) .
@@ -50,7 +50,7 @@ build-nc: ## Build the container without caching
 		--build-arg ODOO_VERSION=$(ODOO_VERSION) \
 		--build-arg ODOO_COMMIT_HASH=$(ODOO_COMMIT_HASH) \
 		--build-arg VERSION_DATE=$(VERSION_DATE) \
-		--build-arg WKHTMLTOPDF_SRC=$(WKHTMLTOPDF_SRC) \
+		--build-arg WKHTMLTOPDF_DEB=$(WKHTMLTOPDF_DEB) \
 		--build-arg WKHTMLTOPDF_SHA=$(WKHTMLTOPDF_SHA) \
 		--build-arg POSTGRES_VERSION=$(POSTGRES_VERSION) \
 		--no-cache --rm -t $(APP_NAME) .
