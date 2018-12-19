@@ -15,6 +15,12 @@ ifndef VERSION
 $(error VERSION is not set)
 endif
 
+ifndef VERSION_DATE
+$(error VERSION_DATE is not set)
+endif
+
+VERSIONDATE := $(shell echo -e $(VERSION_DATE) | tr -d '[\-]')
+
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
@@ -61,7 +67,7 @@ build-nc: ## Build the container without caching
 release: build-nc publish ## Make a release by building and publishing the `{version}` ans `latest` tagged containers to ECR
 
 # Docker publish
-publish: repo-login publish-latest publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
+publish: repo-login publish-latest publish-version publish-version-date ## Publish the `{version}` ans `latest` tagged containers to ECR
 
 publish-latest: tag-latest ## Publish the `latest` taged container to Docker.io
 	@echo 'publish latest to $(DOCKER_REPO)'
@@ -71,16 +77,24 @@ publish-version: tag-version ## Publish the `{version}` taged container to Docke
 	@echo 'publish $(VERSION) to $(DOCKER_REPO)'
 	docker push $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
 
-# Docker tagging
-tag: tag-latest tag-version ## Generate container tags for the `{version}` ans `latest` tags
+publish-version-date: tag-version-date ## Publish the `{version}-{version_date}` taged container to Docker.io
+	@echo 'publish $(VERSION)-$(VERSIONDATE) to $(DOCKER_REPO)'
+	docker push $(DOCKER_REPO)/$(APP_NAME):$(VERSION)-$(VERSIONDATE)
 
-tag-latest: ## Generate container `{version}` tag
+# Docker tagging
+tag: tag-latest tag-version tag-version-date ## Generate container tags for the `{version}` ans `latest` tags
+
+tag-latest: ## Generate container `latest` tag
 	@echo 'create tag latest'
 	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):latest
 
-tag-version: ## Generate container `latest` tag
+tag-version: ## Generate container `{version}` tag
 	@echo 'create tag $(VERSION)'
 	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
+
+tag-version-date: ## Generate container `{version_date}` tag
+	@echo 'create tag $(VERSION)-$(VERSIONDATE)'
+	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)-$(VERSIONDATE)
 
 # HELPERS
 
