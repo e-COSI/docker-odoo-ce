@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:jessie
 LABEL maintainer="e-COSI <odoo@e-cosi.com>"
 
 # db_filter is added to odoo.conf
@@ -46,7 +46,7 @@ RUN set -x; \
 RUN set -x; \
         apt-get update && apt-get install -y git apt-utils; \
         if [ ${ODOO_COMMIT_HASH} ]; \
-        then git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
+        then git clone --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
         else git clone --depth 1 --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
         fi; \
         cd /odoo/odoo-server \
@@ -63,7 +63,7 @@ RUN set -x; \
 #  and pgclient
 RUN set -x; \
         apt-get update && apt-get install -y wget gnupg \
-        && echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
+        && echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
         && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
         && apt-get update \
         && apt-get install -y --no-install-recommends --allow-unauthenticated \
@@ -73,7 +73,7 @@ RUN set -x; \
         gcc \
         patch \
         ca-certificates \
-        # Python 3 env
+        # Python env
         python \
         python-pip \
         python-setuptools \
@@ -86,9 +86,11 @@ RUN set -x; \
         libxslt-dev \
         libsasl2-dev \
         libldap2-dev \
-        libssl1.0-dev \
-        # PostgreSQL client (for DB backup/restore)
+   	libjpeg-dev \
+        libssl-dev \
+        # PostgreSQL (for DB backup/restore), not only client because of psycopg2 build (pg_config)
         postgresql-client-${POSTGRES_VERSION} \
+	postgresql-server-dev-${POSTGRES_VERSION} \
         # Requierd from Odoo Deb package
         #node-clean-css \
         adduser \
@@ -103,7 +105,9 @@ RUN set -x; \
         python-feedparser \
         python-html2text \
         python-pil \
+	python-imaging \
         python-jinja2 \
+	python-libxslt1 \
         python-lxml \
         python-mako \
         python-mock \
@@ -111,9 +115,10 @@ RUN set -x; \
         python-passlib \
         python-psutil \
         python-psycopg2 \
+    	python-pychart \
         python-pydot \
         python-pyparsing \
-        python-pypdf2 \
+        python-pypdf \
         python-reportlab \
         python-requests \
         python-renderpm \
@@ -127,9 +132,16 @@ RUN set -x; \
         python-gevent \
         python-renderpm \
         python-watchdog \
+        antiword \
+	graphviz \
+	ghostscript \
+	poppler-utils \
         # Python requirements
         && pip install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
+        && apt-get purge -y python-requests \
+	&& apt-get install -y python-requests python-pip \
+        && easy_install -U pip \
         && pip install wdb pudb newrelic psycogreen==1.0 \
         # Cleaning layer
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
