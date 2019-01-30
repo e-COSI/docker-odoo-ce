@@ -156,9 +156,9 @@ RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
 COPY ./files/release.diff /tmp
 COPY ./files/patch_release.sh /tmp
 RUN chmod +x /tmp/patch_release.sh
-RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} \
-        && rm /tmp/release.diff \
-        && rm /tmp/patch_release.sh
+#RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} \
+#        && rm /tmp/release.diff \
+#        && rm /tmp/patch_release.sh
 
 RUN mkdir -p /etc/odoo
 
