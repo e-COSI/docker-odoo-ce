@@ -142,7 +142,7 @@ RUN set -x; \
         && apt-get purge -y python-requests \
 	&& apt-get install -y python-requests python-pip \
         && easy_install -U pip \
-        && pip install wdb pudb newrelic psycogreen==1.0 \
+        && pip install wdb pudb newrelic unicodecsv psycogreen==1.0 \
         # Cleaning layer
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/* \
@@ -204,4 +204,4 @@ USER odoo
 
 ENTRYPOINT ["/odoo/entrypoint.sh"]
 
-CMD ["/odoo/odoo-server/odoo-bin", "-c", "/etc/odoo/odoo.conf"]
+CMD ["/odoo/odoo-server/openerp-server", "-c", "/etc/odoo/odoo.conf"]
