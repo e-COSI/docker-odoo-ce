@@ -64,6 +64,7 @@ RUN set -x; \
 
 # Install some deps, lessc and less-plugin-clean-css, wkhtmltopdf
 #  and pgclient
+COPY ./files/requirements.txt /odoo
 RUN set -x; \
         apt-get update && apt-get install -y wget gnupg \
         && echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
@@ -132,7 +133,8 @@ RUN set -x; \
         # Python requirements
         && pip3 install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
-        && pip3 install wdb pudb watchdog newrelic \
+        #&& pip3 install wdb pudb watchdog newrelic \
+	&& pip3 install -r /odoo/requirements.txt \
         # Cleaning layer
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/* \

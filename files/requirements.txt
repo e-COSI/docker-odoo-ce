@@ -1,0 +1,8 @@
+# for development purposes
+wdb 
+pudb 
+watchdog 
+newrelic
+# for OCA
+cachetools
+
