@@ -42,7 +42,7 @@ build: ## Build the container
 		--build-arg WKHTMLTOPDF_DEB=$(WKHTMLTOPDF_DEB) \
 		--build-arg WKHTMLTOPDF_SHA=$(WKHTMLTOPDF_SHA) \
 		--build-arg POSTGRES_VERSION=$(POSTGRES_VERSION) \
-		--rm -t $(APP_NAME):$(ODOO_VERISON) .
+		--rm -t $(APP_NAME):$(ODOO_VERSION) .
 
 build-nc: ## Build the container without caching
 	docker build \
