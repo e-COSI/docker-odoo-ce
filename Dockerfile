@@ -64,6 +64,7 @@ RUN set -x; \
 
 # Install some deps, lessc and less-plugin-clean-css, wkhtmltopdf
 #  and pgclient
+COPY ./files/requirements.txt /odoo/extra-requirements.txt
 RUN set -x; \
         apt-get update && apt-get install -y wget gnupg \
         && echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
@@ -76,6 +77,8 @@ RUN set -x; \
         gcc \
         xz-utils \
         patch \
+        dirmngr \
+        fonts-noto-cjk \        
         # Python 3 env
         python3 \
         python3-pip \
@@ -93,7 +96,6 @@ RUN set -x; \
         # PostgreSQL client (for DB backup/restore)
         postgresql-client-${POSTGRES_VERSION} \
         # Requierd from Odoo Deb package
-        #node-clean-css \
         adduser \
         lsb-base \
         node-less \
@@ -135,16 +137,30 @@ RUN set -x; \
         # Python requirements
         && pip3 install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
-        && pip3 install wdb pudb newrelic num2words xlwt \
+        && pip3 install -r /odoo/extra-requirements.txt \
         # Cleaning layer
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/* \
         # WKMHTLTOPDF
-        && curl -o wkhtmltox.deb -SL ${WKHTMLTOPDF_DEB} \
+        && curl -o wkhtmltox.deb -sSL ${WKHTMLTOPDF_DEB} \
         && echo "${WKHTMLTOPDF_SHA} wkhtmltox.deb" | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
+
+# Install rtlcss (on Debian stretch), from Odoo Dockerfile
+RUN set -x;\
+    echo "deb http://deb.nodesource.com/node_8.x stretch main" > /etc/apt/sources.list.d/nodesource.list \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && repokey='9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280' \
+    && gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "${repokey}" \
+    && gpg --armor --export "${repokey}" | apt-key add - \
+    && gpgconf --kill all \
+    && rm -rf "$GNUPGHOME" \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && npm install -g rtlcss \
+    && rm -rf /var/lib/apt/lists/*
 
 # Writing meta infos file
 RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
