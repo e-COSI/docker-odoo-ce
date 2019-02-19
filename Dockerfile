@@ -142,6 +142,7 @@ RUN set -x; \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
         && rm -rf /var/lib/apt/lists/* \
         # WKMHTLTOPDF
+        && apt-get -y install xfonts-75dpi xfonts-base \
         && curl -o wkhtmltox.deb -sSL ${WKHTMLTOPDF_DEB} \
         && echo "${WKHTMLTOPDF_SHA} wkhtmltox.deb" | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
