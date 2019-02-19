@@ -138,15 +138,14 @@ RUN set -x; \
         && pip3 install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
         && pip3 install -r /odoo/extra-requirements.txt \
-        # Cleaning layer
-        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
-        && rm -rf /var/lib/apt/lists/* \
         # WKMHTLTOPDF
         && apt-get -y install xfonts-75dpi xfonts-base \
         && curl -o wkhtmltox.deb -sSL ${WKHTMLTOPDF_DEB} \
         && echo "${WKHTMLTOPDF_SHA} wkhtmltox.deb" | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
+        # Cleaning layer
+        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \        
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
 # Install rtlcss (on Debian stretch), from Odoo Dockerfile
