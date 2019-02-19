@@ -53,7 +53,7 @@ build-nc: ## Build the container without caching
 		--build-arg WKHTMLTOPDF_DEB=$(WKHTMLTOPDF_DEB) \
 		--build-arg WKHTMLTOPDF_SHA=$(WKHTMLTOPDF_SHA) \
 		--build-arg POSTGRES_VERSION=$(POSTGRES_VERSION) \
-		--no-cache --rm -t $(APP_NAME):$(ODOO_VERISON) .
+		--no-cache --rm -t $(APP_NAME):$(ODOO_VERSION) .
 
 #run: ## Run container on port configured in `config.env`
 #	docker run -i -t --rm --env-file=./config.env -p=$(PORT):$(PORT) --name="$(APP_NAME)" $(APP_NAME)
