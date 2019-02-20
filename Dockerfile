@@ -162,12 +162,10 @@ RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
         && echo "Built on :" >> /odoo/version.txt \
         && date +"%Y-%m-%d" >> /odoo/version.txt && echo "\n"
 
-#COPY ./files/release.diff /tmp
-#COPY ./files/patch_release.sh /tmp
-#RUN chmod +x /tmp/patch_release.sh
-#RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} \
-#        && rm /tmp/release.diff \
-#        && rm /tmp/patch_release.sh
+COPY ./files/patch_release.sh /tmp
+RUN chmod +x /tmp/patch_release.sh
+RUN /tmp/patch_release.sh ${VERSION_DATE} ${ODOO_COMMIT_HASH} && \
+    rm /tmp/patch_release.sh
 
 RUN mkdir -p /etc/odoo
 
