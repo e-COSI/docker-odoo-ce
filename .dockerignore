@@ -1,6 +1,6 @@
 .vagrant.d/
 *.log
 Vagrantfile
-docker-compose.yml
+docker-compose*.yml
 hook/
 .git/
