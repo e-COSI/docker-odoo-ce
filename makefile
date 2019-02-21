@@ -42,7 +42,7 @@ build: ## Build the container
 		--build-arg WKHTMLTOPDF_SRC=$(WKHTMLTOPDF_SRC) \
 		--build-arg WKHTMLTOPDF_SHA=$(WKHTMLTOPDF_SHA) \
 		--build-arg POSTGRES_VERSION=$(POSTGRES_VERSION) \
-		--rm -t $(APP_NAME) .
+		--rm -t $(APP_NAME):$(ODOO_VERSION) .
 
 build-nc: ## Build the container without caching
 	docker build \
@@ -53,7 +53,7 @@ build-nc: ## Build the container without caching
 		--build-arg WKHTMLTOPDF_SRC=$(WKHTMLTOPDF_SRC) \
 		--build-arg WKHTMLTOPDF_SHA=$(WKHTMLTOPDF_SHA) \
 		--build-arg POSTGRES_VERSION=$(POSTGRES_VERSION) \
-		--no-cache --rm -t $(APP_NAME) .
+		--no-cache --rm -t $(APP_NAME):$(ODOO_VERSION) .
 
 #run: ## Run container on port configured in `config.env`
 #	docker run -i -t --rm --env-file=./config.env -p=$(PORT):$(PORT) --name="$(APP_NAME)" $(APP_NAME)
@@ -86,15 +86,15 @@ tag: tag-latest tag-version tag-version-date ## Generate container tags for the 
 
 tag-latest: ## Generate container `latest` tag
 	@echo 'create tag latest'
-	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):latest
+	docker tag $(APP_NAME):$(ODOO_VERSION) $(DOCKER_REPO)/$(APP_NAME):latest
 
 tag-version: ## Generate container `{version}` tag
 	@echo 'create tag $(VERSION)'
-	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
+	docker tag $(APP_NAME):$(ODOO_VERSION) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)
 
 tag-version-date: ## Generate container `{version_date}` tag
 	@echo 'create tag $(VERSION)-$(VERSIONDATE)'
-	docker tag $(APP_NAME) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)-$(VERSIONDATE)
+	docker tag $(APP_NAME):$(ODOO_VERSION) $(DOCKER_REPO)/$(APP_NAME):$(VERSION)-$(VERSIONDATE)
 
 # HELPERS
 
