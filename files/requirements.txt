@@ -5,4 +5,8 @@ watchdog
 newrelic
 # for OCA
 cachetools
-
+# MUK REST
+oauthlib
+# IT Project
+simplejson
+paramiko
