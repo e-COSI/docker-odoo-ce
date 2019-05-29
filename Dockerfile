@@ -133,7 +133,8 @@ RUN set -x; \
         python3-xlsxwriter \
         # Recommended from Odoo Deb Package
         python-gevent \
-        #&& pip3 install --upgrade pip \
+        # Extra package for extra addons (OCA, ...)
+	python3-bs4 \
         # Python requirements
         && pip3 install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
