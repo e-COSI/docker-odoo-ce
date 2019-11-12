@@ -19,7 +19,7 @@ ifndef VERSION_DATE
 $(error VERSION_DATE is not set)
 endif
 
-VERSIONDATE := $(shell echo -e $(VERSION_DATE) | tr -d '[\-]')
+VERSIONDATE := $(shell echo $(VERSION_DATE) | tr -d '[\-]')
 
 # HELP
 # This will output the help for each task

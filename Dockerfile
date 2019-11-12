@@ -45,11 +45,14 @@ RUN set -x; \
 # Install ODOO
 #--------------------------------------------------
 
+# Use backports to avoid install some libs with pip
+RUN echo 'deb http://deb.debian.org/debian stretch-backports main' > /etc/apt/sources.list.d/backports.list
+
 # Clone git repo, using commit hash if given
 RUN set -x; \
         apt-get update && apt-get install -y git apt-utils; \
         if [ ${ODOO_COMMIT_HASH} ]; \
-        then git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
+        then git clone --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
         else git clone --depth 1 --branch ${ODOO_VERSION} https://github.com/odoo/odoo.git /odoo/odoo-server; \
         fi; \
         cd /odoo/odoo-server \
@@ -94,8 +97,9 @@ RUN set -x; \
         # PostgreSQL client (for DB backup/restore)
         postgresql-client-${POSTGRES_VERSION} \
         # Requierd from Odoo Deb package
-        #node-clean-css \
         adduser \
+	dirmngr \
+	fonts-noto-cjk \
         lsb-base \
         node-less \
         postgresql-client \
@@ -109,43 +113,44 @@ RUN set -x; \
         python3-pil \
         python3-jinja2 \
         python3-lxml \
+	python3-pyldap \
         python3-mako \
         python3-mock \
+ 	python3-num2words \
         python3-openid \
         python3-passlib \
+	python3-phonenumbers \
         python3-psutil \
         python3-psycopg2 \
         python3-pydot \
         python3-pyparsing \
         python3-pypdf2 \
+	python3-qrcode \
         python3-reportlab \
         python3-requests \
         python3-renderpm \
         python3-suds \
         python3-tz \
-        python3-vatnumber \
+	python3-vobject \
+        python3-watchdog \
         python3-werkzeug \
         python3-xlsxwriter \
+	python3-xlwt \
         python3-yaml \
         # Recommended from Odoo Deb Package
         python-gevent \
-        #&& pip3 install --upgrade pip \
         # Python requirements
         && pip3 install -r /odoo/odoo-server/requirements.txt \
         # Install extra stuff
-        #&& pip3 install wdb pudb watchdog newrelic \
 	&& pip3 install -r /odoo/requirements.txt \
+        # WKMHTLTOPDF
+        && curl -o wkhtmltox.deb -sSL ${WKHTMLTOPDF_SRC} \
+        && echo "${WKHTMLTOPDF_SHA} wkhtmltox.deb" | sha1sum -c - \
+        && apt-get install -y --no-install-recommends ./wkhtmltox.deb \
         # Cleaning layer
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false \
-        && rm -rf /var/lib/apt/lists/* \
-        # WKMHTLTOPDF
-        && curl -o wkhtmltox.tar.xz -SL ${WKHTMLTOPDF_SRC} \
-        && echo "${WKHTMLTOPDF_SHA} wkhtmltox.tar.xz" | sha1sum -c - \
-        && tar xvf wkhtmltox.tar.xz \
-        && cp wkhtmltox/lib/* /usr/local/lib/ \
-        && cp wkhtmltox/bin/* /usr/local/bin/ \
-        && cp -r wkhtmltox/share/man/man1 /usr/local/share/man/ \
-        && rm -rf wkhtmltox
+	&& rm -rf /var/lib/apt/lists/* wkhtmltox.deb
+
 
 # Writing meta infos file
 RUN echo "Version : ${ODOO_VERSION}\n" > /odoo/version.txt \
