@@ -11,5 +11,7 @@ cachetools
 viivakoodi
 fdfgen
 criticalpath
+lxml
+unidecode
 # MUK REST
 oauthlib

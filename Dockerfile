@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:stretch-slim
 LABEL maintainer="e-COSI <odoo@e-cosi.com>"
 
 # db_filter is added to odoo.conf
