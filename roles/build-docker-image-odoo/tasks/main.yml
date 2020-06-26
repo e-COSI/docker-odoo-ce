@@ -1,0 +1,52 @@
+---
+- name: "Remove build_dir"
+  file:
+    name: "{{ build_path }}"
+    state: absent
+
+- name: "Copy build_dir"
+  copy:
+    src: "docker_build/"
+    dest: "{{ build_path }}"
+
+- name: "Create docker files"
+  template:
+    src: "{{ item }}"
+    dest: "{{ build_path }}"
+  loop:
+    - Dockerfile_en
+    - Dockerfile_ce
+
+- name: "Required packages"
+  become: true
+  apt:
+    name: python-docker
+
+- name: "Build image"
+  docker_image:
+    name: "{{ odoo_docker_image_basename }}-{{ odoo_edition }}"
+    build:
+      path: "{{ build_path }}"
+      dockerfile: Dockerfile_ce
+      pull: yes
+      args:
+        ODOO_VERSION: "{{ odoo_version }}"
+        ODOO_COMMIT: "{{ odoo_commit | default('') }}"
+        VERSION_DATE: "{{ odoo_version_date }}"
+        WKHTMLTOPDF_DEB: "{{ odoo_wkhtmltopdf_deb }}"
+        WKHTMLTOPDF_SHA: "{{ odoo_wkhtmltopdf_sha }}"
+        POSTGRES_VERSION: "{{ odoo_postgres_version }}"
+        ODOO_CE_IMAGE: "{{ odoo_ce_image }}"
+    tag: "{{ odoo_version }}-{{ odoo_version_date }}"
+    source: build
+
+- name: "Tag & Push images"
+  docker_image:
+    name: "{{ odoo_docker_image_basename }}-{{ odoo_edition }}"
+    source: local
+    repository: "{{ odoo_docker_repo }}"
+    tag: "{{ item }}"
+    push: yes
+  loop:
+    - "{{ odoo_version }}"
+    - "{{ odoo_version }}-{{ odoo_version_date }}"

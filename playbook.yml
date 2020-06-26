@@ -1,0 +1,24 @@
+---
+- name: "Build and publish odoo docker images"
+  hosts: docker-runner
+  vars:
+    odoo_version_latest: 13.0
+  roles:
+    - role: build-docker-image-odoo
+      vars:
+        odoo_version: 12.0
+        odoo_edition: "ce"
+        odoo_version_date: "{{ ODOO_12_CE_VERSION_DATE | default(lookup('pipe','date +%Y%m%d')) }}"
+        odoo_wkhtmltopdf_deb: "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb"
+        odoo_wkhtmltopdf_sha: "7e35a63f9db14f93ec7feeb0fce76b30c08f2057"
+        odoo_postgres_version: 10
+        odoo_commit: "{{ ODOO_12_CE_COMMIT | default('') }}"
+      tags: [odoo_12", "odoo_12_ce"]
+    # - role: build-docker-image-odoo
+    #   vars:
+    #     odoo_version: 12.0
+    #     odoo_edition: "en"
+    #     odoo_ce_image: "{{odoo_docker_repo }}/{{ odoo_docker_image_basename }}-{{ odoo_edition }}:{{ odoo_version }}"
+    #     odoo_version_date: "{{ ODOO_12_EN_VERSION_DATE | default('') }}"
+    #     odoo_commit: "{{ ODOO_12_EN_COMMIT | default('') }}"
+    #   tags: [odoo_12", "odoo_12_en"]

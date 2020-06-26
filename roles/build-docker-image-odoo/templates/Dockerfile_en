@@ -1,0 +1,37 @@
+ARG ODOO_CE_IMAGE
+
+FROM ${ODOO_CE_IMAGE}
+LABEL maintainer="e-COSI <odoo@e-cosi.com>"
+
+ARG ODOO_VERSION
+# VERSION_DATE is used as meta info in version.txt file generated at /odoo
+#  and to limit cloning depth via shallow-since
+#  VERSION_DATE must be equal to commit selected date
+ARG VERSION_DATE
+
+
+ARG ODOO_EN_GIT_TOKEN
+# Image is built from Odoo branch given by VERSION AND WITH EXACT COMMIT HASH
+# IMPORTANT! This script contains extra libraries that are specifically needed for Odoo 10.0
+ARG ODOO_COMMIT_HASH
+
+ENV ODOO_VERSION=${ODOO_VERSION}
+ENV VERSION_DATE=${VERSION_DATE}
+
+RUN mkdir -p /odoo/enterprise/addons
+
+RUN set -x; \
+    #        if [ ${ODOO_COMMIT_HASH} ]; \
+    #          then git clone --shallow-since=${VERSION_DATE} --branch ${ODOO_VERSION} https://2a070adfb86ebb65d716b6a3a8669fc9f494632c@github.com/odoo/enterprise.git /odoo/enterprise/addons; \
+    #else
+    git clone --depth 1 --branch ${ODOO_VERSION} https://2a070adfb86ebb65d716b6a3a8669fc9f494632c@github.com/odoo/enterprise.git /odoo/enterprise/addons; \
+    #       fi; \
+    cd /odoo/enterprise/addons \
+    if [ ${ODOO_COMMIT_HASH} ]; then git reset --hard ${ODOO_COMMIT_HASH}; fi \
+    rm -rf /odoo/enterprise/addons/.git
+
+USER root
+
+RUN sed -i -e "s/addons_path=\(.*\)/addons_path=\/odoo\/enterprise\/addons,\1/g" /etc/odoo/odoo.conf
+
+USER odoo

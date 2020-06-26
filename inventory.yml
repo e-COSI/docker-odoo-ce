@@ -1,0 +1,13 @@
+---
+all:
+  vars:
+    ODOO_12_VERSION_DATE: "20200626"
+    ODOO_12_CE_VERSION_DATE: "{{ ODOO_12_VERSION_DATE }}"
+    ODOO_12_CE_COMMIT: "30e94d305f9cffa816ddc213e0b9329c0263c145"
+    ODOO_12_EN_VERSION_DATE: "{{ ODOO_12_VERSION_DATE }}"
+    ODOO_12_EN_COMMIT: "b0ae6eab597336f6d2ddb6f47dcf05f8f7772ded"
+  hosts:
+    docker-runner:
+      ansible_host: 213.32.73.230
+      ansible_user: ubuntu
+      ansible_port: 22

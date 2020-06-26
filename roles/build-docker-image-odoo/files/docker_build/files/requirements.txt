@@ -2,9 +2,9 @@
 phonenumbers
 numpy
 # for development purposes
-wdb 
-pudb 
-watchdog 
+wdb
+pudb
+watchdog
 newrelic
 # for OCA
 cachetools
@@ -13,3 +13,5 @@ fdfgen
 criticalpath
 # MUK REST
 oauthlib
+# Nextcloud
+pyocclient

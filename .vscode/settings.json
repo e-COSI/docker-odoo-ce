@@ -1,0 +1,10 @@
+{
+  "templateFinder.extension.activated": true,
+  "files.exclude": {
+    ".vagrant/": "explorerExcludedFiles",
+    "@eaDir": "explorerExcludedFiles",
+    "\\#recycle": "explorerExcludedFiles",
+    "*.log": "explorerExcludedFiles",
+    "*.retry": "explorerExcludedFiles"
+  }
+}

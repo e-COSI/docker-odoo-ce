@@ -17,3 +17,5 @@
 # End of https://www.gitignore.io/api/synology
 
 *.log
+
+*.retry

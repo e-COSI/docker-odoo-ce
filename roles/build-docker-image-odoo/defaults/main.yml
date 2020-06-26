@@ -1,0 +1,4 @@
+odoo_docker_repo: ecosi
+odoo_docker_image_basename: odoo
+odoo_ce_image: "NO NEED"
+build_path: "/tmp/docker_build"
